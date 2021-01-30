@@ -1,0 +1,72 @@
+version: '3.4'
+services:
+  avalon.admin:
+    image: '${DOCKER_REGISTRY-}skoruba-identityserver4-admin'
+    build:
+      context: .
+      dockerfile: src/Avalon.Admin/Dockerfile
+    container_name: skoruba-identityserver4-admin
+    ports:
+      - "44303:80"
+    environment:
+      - 'ConnectionStrings__ConfigurationDbConnection=Server=20.52.129.67;Port=5432;Database=IdentityServer4Admin;User Id=postgres;Password=Welcome123$$!'
+      - 'ConnectionStrings__PersistedGrantDbConnection=Server=20.52.129.67;Port=5432;Database=IdentityServer4Admin;User Id=postgres;Password=Welcome123$$!'
+      - 'ConnectionStrings__IdentityDbConnection=Server=20.52.129.67;Port=5432;Database=IdentityServer4Admin;User Id=postgres;Password=Welcome123$$!'
+      - 'ConnectionStrings__AdminLogDbConnection=Server=20.52.129.67;Port=5432;Database=IdentityServer4Admin;User Id=postgres;Password=Welcome123$$!'
+      - 'ConnectionStrings__AdminAuditLogDbConnection=Server=20.52.129.67;Port=5432;Database=IdentityServer4Admin;User Id=postgres;Password=Welcome123$$!'
+      - 'ConnectionStrings__DataProtectionDbConnection=Server=20.52.129.67;Port=5432;Database=IdentityServer4Admin;User Id=postgres;Password=Welcome123$$!'
+      - 'AdminConfiguration__IdentityAdminBaseUrl=http://localhost:44303'
+      - 'AdminConfiguration__IdentityAdminRedirectUri=http://localhost:44303/signin-oidc'
+      - 'AdminConfiguration__IdentityServerBaseUrl=http://localhost:44310'
+      - AdminConfiguration__RequireHttpsMetadata=false
+      - 'DatabaseProviderConfiguration_ProviderType=PostgreSQL'
+      - 'IdentityServerData__Clients__0__ClientUri=http://localhost:44303'
+      - 'IdentityServerData__Clients__0__RedirectUris__0=http://localhost:44303/signin-oidc'
+      - 'IdentityServerData__Clients__0__FrontChannelLogoutUri=http://localhost:44303/signin-oidc'
+      - 'IdentityServerData__Clients__0__PostLogoutRedirectUris__0=http://localhost:44303/signout-callback-oidc'
+      - 'IdentityServerData__Clients__0__AllowedCorsOrigins__0=http://localhost:44303'
+      - 'IdentityServerData__Clients__1__RedirectUris__0=https://admin-api.skoruba.local/swagger/oauth2-redirect.html'
+      - 'Serilog__WriteTo__1__Args__connectionString=Server=20.52.129.67;Port=5432;Database=IdentityServer4Admin;User Id=postgres;Password=Welcome123$$!'
+      - DockerConfiguration__UpdateCaCertificate=true
+      - ASPNETCORE_ENVIRONMENT=Development
+    command: dotnet Avalon.Admin.dll /seed
+    depends_on:
+      - avalon.sts.identity
+    volumes:
+      - './shared/serilog.json:/app/serilog.json'
+      - './shared/identitydata.json:/app/identitydata.json'
+      - './shared/identityserverdata.json:/app/identityserverdata.json'
+    networks:
+      identityserverui: null
+  avalon.sts.identity:
+    image: '${DOCKER_REGISTRY-}skoruba-identityserver4-sts-identity'
+    build:
+      context: .
+      dockerfile: src/Avalon.STS.Identity/Dockerfile
+    ports:
+      - "44310:80"
+    container_name: skoruba-identityserver4-sts-identity
+    environment:
+      - 'ConnectionStrings__ConfigurationDbConnection=Server=20.52.129.67;Port=5432;Database=IdentityServer4Admin;User Id=postgres;Password=Welcome123$$!'
+      - 'ConnectionStrings__PersistedGrantDbConnection=Server=20.52.129.67;Port=5432;Database=IdentityServer4Admin;User Id=postgres;Password=Welcome123$$!'
+      - 'ConnectionStrings__IdentityDbConnection=Server=20.52.129.67;Port=5432;Database=IdentityServer4Admin;User Id=postgres;Password=Welcome123$$!'
+      - 'ConnectionStrings__DataProtectionDbConnection=Server=20.52.129.67;Port=5432;Database=IdentityServer4Admin;User Id=postgres;Password=Welcome123$$!'
+      - 'AdminConfiguration__IdentityAdminBaseUrl=http://localhost:44303'
+      - 'AdvancedConfiguration__PublicOrigin=http://localhost:44310'
+      - 'AdvancedConfiguration__IssuerUri=http://localhost:44310'
+      - 'DatabaseProviderConfiguration_ProviderType=PostgreSQL'
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - './shared/serilog.json:/app/serilog.json'
+    networks:
+      identityserverui:
+        aliases:
+          - sts.skoruba.local
+volumes:
+  dbdata:
+    driver: local
+networks:
+  proxy:
+    driver: bridge
+  identityserverui:
+    driver: bridge
