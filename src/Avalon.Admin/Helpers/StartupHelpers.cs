@@ -410,6 +410,7 @@ namespace Avalon.Admin.Helpers
                         options.ClientId = adminConfiguration.ClientId;
                         options.ClientSecret = adminConfiguration.ClientSecret;
                         options.ResponseType = adminConfiguration.OidcResponseType;
+                        options.MetadataAddress = adminConfiguration.MetadataAddress;
 
                         options.Scope.Clear();
                         foreach (var scope in adminConfiguration.Scopes)

@@ -18,6 +18,8 @@ using System;
 using Avalon.Shared.Dtos;
 using Avalon.Shared.Dtos.Identity;
 using Avalon.Shared.Helpers;
+using Microsoft.AspNetCore.Http;
+using Avalon.Shared.Configuration.Identity;
 
 namespace Avalon.Admin
 {
@@ -88,7 +90,7 @@ namespace Avalon.Admin
             services.AddIdSHealthChecks<IdentityServerConfigurationDbContext, IdentityServerPersistedGrantDbContext, AdminIdentityDbContext, AdminLogDbContext, AdminAuditLogDbContext, IdentityServerDataProtectionDbContext>(Configuration, rootConfiguration.AdminConfiguration);
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IConfiguration configuration)
         {
             app.UseCookiePolicy();
 
@@ -101,6 +103,24 @@ namespace Avalon.Admin
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+
+            var advancedConfiguration = configuration.GetSection(nameof(AdvancedConfiguration)).Get<AdvancedConfiguration>();
+
+            if (advancedConfiguration != null && !string.IsNullOrWhiteSpace(advancedConfiguration.DockerInnerLocation) && !string.IsNullOrWhiteSpace(advancedConfiguration.DockerOuterLocation))
+            {
+                app.Use(async (httpcontext, next) =>
+                {
+                    await next();
+                    if (httpcontext.Response.StatusCode == StatusCodes.Status302Found)
+                    {
+                        string location = httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location];
+                        httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location] =
+                                location.Replace(advancedConfiguration.DockerInnerLocation, advancedConfiguration.DockerOuterLocation);
+                    }
+
+                });
+            }
+
 
             app.UsePathBase(Configuration.GetValue<string>("BasePath"));
 

@@ -20,6 +20,7 @@
         public string Theme { get; set; }
 
         public string CustomThemeCss { get; set; }
+        public string MetadataAddress { get; set; }
 
     }
 }

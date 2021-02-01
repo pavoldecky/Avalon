@@ -14,6 +14,8 @@ using Avalon.STS.Identity.Helpers;
 using System;
 using Microsoft.AspNetCore.DataProtection;
 using Avalon.Shared.Helpers;
+using Microsoft.AspNetCore.Http;
+using Avalon.Shared.Configuration.Identity;
 
 namespace Avalon.STS.Identity
 {
@@ -55,10 +57,11 @@ namespace Avalon.STS.Identity
             // Add authorization policies for MVC
             RegisterAuthorization(services);
 
+
             services.AddIdSHealthChecks<IdentityServerConfigurationDbContext, IdentityServerPersistedGrantDbContext, AdminIdentityDbContext, IdentityServerDataProtectionDbContext>(Configuration);
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IConfiguration configuration)
         {
             app.UseCookiePolicy();
 
@@ -70,6 +73,24 @@ namespace Avalon.STS.Identity
             {
                 app.UseHsts();
             }
+
+            var advancedConfiguration = configuration.GetSection(nameof(AdvancedConfiguration)).Get<AdvancedConfiguration>();
+
+            if ( advancedConfiguration != null && !string.IsNullOrWhiteSpace(advancedConfiguration.DockerInnerLocation) && !string.IsNullOrWhiteSpace(advancedConfiguration.DockerOuterLocation))
+            {
+                app.Use(async (httpcontext, next) =>
+                {
+                    await next();
+                    if (httpcontext.Response.StatusCode == StatusCodes.Status302Found)
+                    {
+                        string location = httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location];
+                        httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location] =
+                                location.Replace(advancedConfiguration.DockerInnerLocation, advancedConfiguration.DockerOuterLocation);
+                    }
+
+                });
+            }
+            
 
             app.UsePathBase(Configuration.GetValue<string>("BasePath"));
 

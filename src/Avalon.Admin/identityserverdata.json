@@ -84,7 +84,7 @@
           {
             "ClientId": "AdminClientId",
             "ClientName": "AdminClientId",
-            "ClientUri": "http://localhost:8001",
+            "ClientUri": "http://20.52.129.67:8001",
             "AllowedGrantTypes": [
               "authorization_code"
             ],
@@ -95,14 +95,14 @@
               }
             ],
             "RedirectUris": [
-              "http://localhost:8001/signin-oidc"
+              "http://20.52.129.67:8001/signin-oidc"
             ],
-            "FrontChannelLogoutUri": "http://localhost:8001/signout-oidc",
+            "FrontChannelLogoutUri": "http://20.52.129.67:8001/signout-oidc",
             "PostLogoutRedirectUris": [
-              "http://localhost:8001/signout-callback-oidc"
+              "http://20.52.129.67:8001/signout-callback-oidc"
             ],
             "AllowedCorsOrigins": [
-              "http://localhost:8001"
+              "http://20.52.129.67:8001"
             ],
             "AllowedScopes": [
               "openid",
@@ -120,13 +120,13 @@
                 "RequireClientSecret": false,
                 "RequirePkce": true,
               "RedirectUris": [
-                "http://localhost:8002/swagger/oauth2-redirect.html"
+                "http://20.52.129.67:8002/swagger/oauth2-redirect.html"
               ],
                 "AllowedScopes": [
                     "AdminClientId_api"
                 ],
               "AllowedCorsOrigins": [
-                "http://localhost:8002"
+                "http://20.52.129.67:8002"
               ]
             }
         ]

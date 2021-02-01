@@ -1,0 +1,67 @@
+version: '3.4'
+services:
+    nginx:
+      image: nginx
+      container_name: nginx-proxy
+      ports:
+        - 80:80
+      volumes:
+        - type: bind
+          source: ./shared/nginx/www
+          target: /usr/share/nginx/html
+          read_only: true
+        - type: bind
+          source: ./shared/nginx/etc
+          target: /etc/nginx/conf.d
+          read_only: true    
+      networks:
+        - mainnetwork 
+      # depends_on:
+      #   - sts-identity
+      #   - admin
+      #   - db
+    admin:
+      image: avaxxx/avalon.admin:latest
+      container_name: admin
+      ports:
+        - "8001:80"
+      command: dotnet Avalon.Admin.dll /seed
+      # depends_on:
+      #   - sts-identity
+      #   - db
+      volumes:
+        - './shared/serilog.json:/app/serilog.json'
+        - './shared/identitydata.json:/app/identitydata.json'
+        - './shared/identityserverdata.json:/app/identityserverdata.json'
+        - './shared/admin/appsettings.json:/app/appsettings.json'
+      networks:
+        - mainnetwork 
+    sts-identity:
+      image: avaxxx/avalon.sts.identity:latest
+      ports:
+        - "8000:80"
+      container_name: sts-identity
+      # depends_on:
+      #   - db
+      volumes:
+        - './shared/serilog.json:/app/serilog.json'
+        - './shared/identity/appsettings.json:/app/appsettings.json'
+      networks:
+        - mainnetwork 
+    # db:
+    #   image: postgres
+    #   container_name: postgres
+    #   ports:
+    #     - 5432:5432
+    #   environment:
+    #     - 'POSTGRES_USERNAME='
+    #     - 'POSTGRES_PASSWORD='
+    #   volumes:
+    #     - postgres-data:/var/lib/postgresql/data
+    #   networks:
+    #     - mainnetwork 
+networks:
+  mainnetwork:
+    driver: bridge
+# volumes:
+#   postgres-data:
