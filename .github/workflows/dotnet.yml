@@ -14,11 +14,20 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: mr-smithers-excellent/docker-build-push@v5
-      name: Build & push Docker image
+      name: Build & push avalon.sts.identity Docker image
       with:
         image: avaxxx/avalon.sts.identity
         tags: latest
         registry: docker.io
         dockerfile: src/Avalon.STS.Identity/Dockerfile
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    - uses: mr-smithers-excellent/docker-build-push@v5
+      name: Build & push avalon.admin Docker image
+      with:
+        image: avaxxx/avalon.admin
+        tags: latest
+        registry: docker.io
+        dockerfile: src/Avalon.Admin/Dockerfile
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
