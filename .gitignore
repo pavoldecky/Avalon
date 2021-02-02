@@ -440,3 +440,16 @@ $RECYCLE.BIN/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+/src/Avalon.Admin/appsettings.production.json
+/src/Avalon.Admin/Scripts/Libs/
+/src/Avalon.Admin/Data/Migrations/
+
+# Don't ignore these log folders
+!/src/Avalon.Admin/Resources/Views/Log/
+!/src/Avalon.Admin.BusinessLogic/Dtos/Log/
+!/src/Avalon.Admin/Views/Log/
+!/src/Avalon.Admin.BusinessLogic/Events/Log/
+/src/Avalon.Admin.Api/appsettings.Production.json
+
+appsettings.*.json
