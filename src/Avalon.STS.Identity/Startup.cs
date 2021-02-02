@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Avalon.Shared.Helpers;
 using Microsoft.AspNetCore.Http;
 using Avalon.Shared.Configuration.Identity;
+using IdentityServer4.Extensions;
 
 namespace Avalon.STS.Identity
 {
@@ -80,7 +81,10 @@ namespace Avalon.STS.Identity
             {
                 app.Use(async (httpcontext, next) =>
                 {
+                    httpcontext.SetIdentityServerOrigin(advancedConfiguration.IssuerUri);
+
                     await next();
+
                     if (httpcontext.Response.StatusCode == StatusCodes.Status302Found)
                     {
                         string location = httpcontext.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Location];
