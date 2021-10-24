@@ -17,6 +17,7 @@ using Avalon.Shared.Helpers;
 using Microsoft.AspNetCore.Http;
 using Avalon.Shared.Configuration.Identity;
 using IdentityServer4.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Avalon.STS.Identity
 {
@@ -57,6 +58,12 @@ namespace Avalon.STS.Identity
 
             // Add authorization policies for MVC
             RegisterAuthorization(services);
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+            });
 
 
             services.AddIdSHealthChecks<IdentityServerConfigurationDbContext, IdentityServerPersistedGrantDbContext, AdminIdentityDbContext, IdentityServerDataProtectionDbContext>(Configuration);
@@ -107,6 +114,7 @@ namespace Avalon.STS.Identity
 
             app.UseRouting();
             app.UseAuthorization();
+            app.UseForwardedHeaders();
             app.UseEndpoints(endpoint =>
             {
                 endpoint.MapDefaultControllerRoute();
