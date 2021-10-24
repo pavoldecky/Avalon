@@ -341,6 +341,7 @@ namespace Avalon.STS.Identity.Helpers
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
                     
+                    
                     if (!string.IsNullOrEmpty(advancedConfiguration.IssuerUri))
                     {
                         options.IssuerUri = advancedConfiguration.IssuerUri;

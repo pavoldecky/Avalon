@@ -59,11 +59,11 @@ namespace Avalon.STS.Identity
             // Add authorization policies for MVC
             RegisterAuthorization(services);
 
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.ForwardedHeaders =
-                    ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
-            });
+            //services.Configure<ForwardedHeadersOptions>(options =>
+            //{
+            //    options.ForwardedHeaders =
+            //        ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+            //});
 
 
             services.AddIdSHealthChecks<IdentityServerConfigurationDbContext, IdentityServerPersistedGrantDbContext, AdminIdentityDbContext, IdentityServerDataProtectionDbContext>(Configuration);
@@ -114,7 +114,18 @@ namespace Avalon.STS.Identity
 
             app.UseRouting();
             app.UseAuthorization();
-            app.UseForwardedHeaders();
+            var forwardOptions = new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+                RequireHeaderSymmetry = false
+            };
+
+            forwardOptions.KnownNetworks.Clear();
+            forwardOptions.KnownProxies.Clear();
+
+            // ref: https://github.com/aspnet/Docs/issues/2384
+            app.UseForwardedHeaders(forwardOptions);
+
             app.UseEndpoints(endpoint =>
             {
                 endpoint.MapDefaultControllerRoute();
